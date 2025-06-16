@@ -1,16 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Card = ({ title }) => {
+  const [count, setCount] = useState(0);
   const [liked, setLiked] = useState(false);
-  console.log(liked);
+
+  useEffect(() => {
+    console.log(`${title} has been liked: ${liked}`);
+  }, [liked, title]);
+
+  useEffect(() => {
+    console.log("CARD RENDERED");
+  }, []);
 
   const handleChangeLike = () => {
     setLiked((prevState) => !prevState);
   };
 
+  const handleIncreaseCount = () => {
+    setCount((prevState) => prevState + 1);
+  };
+
   return (
-    <div className="card">
-      <h2>{title}</h2>
+    <div className="card" onClick={handleIncreaseCount}>
+      <h2>
+        {title} <br /> {count}
+      </h2>
       <button onClick={handleChangeLike}>{liked ? "🩷" : "🤍"}</button>
     </div>
   );
