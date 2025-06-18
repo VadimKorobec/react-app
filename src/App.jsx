@@ -2,34 +2,42 @@ import { useEffect, useState } from "react";
 
 import Search from "./components/Search";
 
-const API_BASE_URL = "https://api.themoviedb.org/3/discover/movie";
+const API_BASE_URL = "https://api.themoviedb.org/3";
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 const API_OPTIONS = {
   method: "GET",
   headers: {
     accept: "application/json",
-    Authorization: `Bearer ${API_KEY} `,
+    Authorization: `Bearer ${API_KEY}`,
   },
 };
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [movies, setMovies] = useState(null);
-  console.log(movies);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [movieList, setMovieList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchMovies = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetch(API_BASE_URL, API_OPTIONS);
+        const response = await fetch(
+          `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`,
+          API_OPTIONS
+        );
         if (!response.ok) {
-          return;
+          throw new Error("Failed to fetch movies");
         }
         const data = await response.json();
         console.log(data);
-        setMovies(data.results);
+        setMovieList(data.results);
+        setIsLoading(false);
       } catch (error) {
         console.error(`Error fetching movies:${error} `);
+        setErrorMessage("Error fetching movies. Please try again later.");
+        setIsLoading(false);
       }
     };
     fetchMovies();
@@ -45,21 +53,28 @@ const App = () => {
             Find <span className="text-gradient">Movies</span> You'll Enjoy
             Without the Hassle
           </h1>
+          <Search value={searchTerm} onSearch={setSearchTerm} />
         </header>
-        <Search value={searchTerm} onSearch={setSearchTerm} />
         <h1>{searchTerm}</h1>
       </div>
-      {movies ? (
-        <ul>
-          {movies.map((movie) => (
-            <li key={movie.id}>
-              <p className="text-white">{movie.original_title}</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-white">Loading...</p>
-      )}
+      <section className="all-movies">
+        <h2>All Movies</h2>
+        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+        {!isLoading && movieList.length === 0 && (
+          <p className="text-white">No movies found</p>
+        )}
+        {isLoading ? (
+          <p className="text-white">Loading</p>
+        ) : (
+          <ul>
+            {movieList.map((movie) => (
+              <li key={movie.id}>
+                <p className="text-white">{movie.title}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 };
