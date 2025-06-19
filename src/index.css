@@ -97,7 +97,7 @@
     @apply space-y-9;
 
     & ul {
-      @apply grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-10;
+      @apply grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
     }
   }
 
@@ -132,11 +132,11 @@
       @apply text-sm text-gray-100;
     }
 
-    & .content .lang {
+    & .lang {
       @apply capitalize text-gray-100 font-medium text-base;
     }
 
-    & .content .year {
+    & .year {
       @apply text-gray-100 font-medium text-base;
     }
   }

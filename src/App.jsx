@@ -25,25 +25,28 @@ const App = () => {
     const fetchMovies = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`,
-          API_OPTIONS
-        );
+        const endpoint = searchTerm
+          ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(
+              searchTerm
+            )}`
+          : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+
+        const response = await fetch(endpoint, API_OPTIONS);
         if (!response.ok) {
           throw new Error("Failed to fetch movies");
         }
         const data = await response.json();
-        console.log(data);
         setMovieList(data.results);
-        setIsLoading(false);
       } catch (error) {
-        console.error(`Error fetching movies:${error} `);
+        console.error(`Error fetching movies: ${error}`);
         setErrorMessage("Error fetching movies. Please try again later.");
+      } finally {
         setIsLoading(false);
       }
     };
+
     fetchMovies();
-  }, []);
+  }, [searchTerm]);
 
   return (
     <main>
@@ -58,23 +61,23 @@ const App = () => {
           <Search value={searchTerm} onSearch={setSearchTerm} />
         </header>
         <h1>{searchTerm}</h1>
+        <section className="all-movies">
+          <h2 className="mt-20 text-center">All Movies</h2>
+          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+          {!isLoading && movieList.length === 0 && (
+            <p className="text-white">No movies found</p>
+          )}
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <ul>
+              {movieList.map((movie) => (
+                <MovieCard key={movie.id} movie={movie} />
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
-      <section className="all-movies">
-        <h2 className="mt-20 text-center">All Movies</h2>
-        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-        {!isLoading && movieList.length === 0 && (
-          <p className="text-white">No movies found</p>
-        )}
-        {isLoading ? (
-          <Spinner />
-        ) : (
-          <ul>
-            {movieList.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
-          </ul>
-        )}
-      </section>
     </main>
   );
 };
